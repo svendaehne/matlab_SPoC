@@ -68,7 +68,7 @@ function [W, A, lambda, C_s, X_ssd] = ssd(X, freq, sampling_freq, filter_order, 
 % NeuroImage, 2011, 55: 1528-1535.
 %
 % Haufe, S., Dahne, S., & Nikulin, V. V. Dimensionality reduction for the 
-% analysis of brain oscillations. NeuroImage, 2014 (accepted)
+% analysis of brain oscillations. NeuroImage, 2014 (accepted for publication)
 %
 
 
