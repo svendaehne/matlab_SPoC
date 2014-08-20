@@ -46,19 +46,23 @@ function [W, A, lambda, C_s, X_ssd] = ssd(X, freq, sampling_freq, filter_order, 
 %              
 % 
 % EXAMPLE:
-%   Let us consider that we want to extract oscillations in the 10-12 Hz
-% frequency range with sampling frequency 200 Hz, then the FREQ can be defined as
-% FREQ=[10 12; 8 14; 9 13]. Here we want to extract oscillations in 10-12
+% Let us consider that we want to extract oscillations in the 10-12 Hz
+% frequency range with sampling frequency 200 Hz. 
+% Then we define: 
+%   freq = [10 12; 8 14; 9 13]. 
+% Here we want to extract oscillations in 10-12
 % Hz range, and flanking noise is defined as band-pass filtered data in
 % 8-14 Hz with the following band-stop filtering in 9-13 Hz in order 
 % to prevent spectral leakage to flanking noise from the signal of interest
-% (10-12 Hz in this case). ORDER=2 ( 4 with filtfilt) 
+% (10-12 Hz in this case). 
+%   filter_order = 2; 
+%   sampling_freq = 200;
 % We want only data from 2 seconds to 100 seconds and then from 110 seconds to 150 seconds
-% then EPOCH=[2*SF 100*SF; 110*SF 150*SF]
-% where SF=200. 
+% then: 
+%   epoch_indices = [2 100; 110 150] .* sampling_freq;
 %
 % The whole command is then written as:
-% [W, A, lambda, C_s, X_ssd] = ssd(X, FREQ, SF, ORDER, EPOCH); 
+% [W, A, lambda, C_s, X_ssd] = ssd(X, freq, sampling_freq, filter_order, epoch_indices); 
 %
 %
 % References:
@@ -69,17 +73,39 @@ function [W, A, lambda, C_s, X_ssd] = ssd(X, freq, sampling_freq, filter_order, 
 %
 % Haufe, S., Dahne, S., & Nikulin, V. V. Dimensionality reduction for the 
 % analysis of brain oscillations. NeuroImage, 2014 (accepted for publication)
+% DOI: 10.1016/j.neuroimage.2014.06.073
 %
+% 
+% 
+% Copyright (c) [2014] [Stefan Haufe, Sven Daehne, Vadim Nikulin]
+% 
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, including without limitation the rights
+% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+% copies of the Software, and to permit persons to whom the Software is
+% furnished to do so, subject to the following conditions:
+% 
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
+% 
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
 
 
 %% check input arguments
 
 % make sure FREQS has the correct dimensions
 if not( size(freq,1)==3 && size(freq,2)==2 )
-  error('FREQS must be a 3 by 2 matrix, i.e. three bands must be specified!');
+  error('freq must be a 3 by 2 matrix, i.e. three bands must be specified!');
 end
 
-% check that the given frequency bands are nested
+% check the given frequency bands
 signal_band = freq(1,:); % signal bandpass band
 noise_bp_band = freq(2,:); % noise bandpass band
 noise_bs_band = freq(3,:); % noise bandstop band
@@ -87,7 +113,7 @@ if not( noise_bs_band(1) < signal_band(1) && ...
         noise_bp_band(1) < noise_bs_band(1) && ...
         signal_band(2) < noise_bs_band(2) && ...
         noise_bs_band(2) < noise_bp_band(2) )
-  error('The bands must be nested, i.e. the first band within the second and the second within the third!');
+  error('Wrongly specified frequency bands!\nThe first band (signal band-pass) must be within the third band (noise band-stop) and the third within the second (noise band-pass)!');
 end
 
 % default values for optional arguments
