@@ -148,15 +148,35 @@ X_tmp = filtfilt(b_s,a_s,X_tmp);
 C_n = cov(X_tmp(ind,:),1);
 clear X_tmp
 
+
 %% Generalized eigenvalue decomposition
 
-[W,D]= eig(C_n,C_s+C_n);
-D=1-diag(D);
-A=inv(W)'; % A is a matrix with the patterns (in columns)
+% dim-reduction of X does not have full rank
+C = C_s;
+[V, D] = eig(C);
+[ev_sorted, sort_idx] = sort(diag(D), 'descend');
+V = V(:,sort_idx);
+% compute an estimate of the rank of the data
+tol = ev_sorted(1) * 10^-6;
+r = sum(ev_sorted > tol);
+if r < size(X,2)
+    fprintf('SSD: Input data does not have full rank. Only %d components can be computed.\n',r);
+    M = V(:,1:r) * diag(ev_sorted(1:r).^-0.5);
+else
+    M = eye(size(X,2));
+end
 
-[lambda,sorted_idx]=sort(D,'descend'); % sorting eigenvalues
-W=W(:,sorted_idx);
-A=A(:,sorted_idx);
+
+C_s = M' * C_s * M;
+C_n = M' * C_n * M;
+[W,D]= eig(C_s,C_s+C_n);
+[lambda, sort_idx] = sort(diag(D), 'descend');
+W = W(:,sort_idx);
+
+W = M * W;
+% A is the matrix with the patterns (in columns)
+A = C * W / (W'* C * W);
+
 
 %% apply SSD filters to the data
 
