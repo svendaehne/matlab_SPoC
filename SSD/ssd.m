@@ -167,9 +167,9 @@ else
 end
 
 
-C_s = M' * C_s * M;
-C_n = M' * C_n * M;
-[W,D]= eig(C_s,C_s+C_n);
+C_s_r = M' * C_s * M;
+C_n_r = M' * C_n * M;
+[W,D]= eig(C_s_r,C_s_r+C_n_r);
 [lambda, sort_idx] = sort(diag(D), 'descend');
 W = W(:,sort_idx);
 
