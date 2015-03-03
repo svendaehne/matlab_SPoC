@@ -13,7 +13,6 @@ if not(isempty(X))
     mu = squeeze(mean(mean(X,1),3));
 end
 
-% perform PCA and compute whitening matrix
 if isempty(C)
     % reshape data to have dims [samples x channels] and remove the mean
     X = X(:,:,mask==1);
@@ -21,15 +20,23 @@ if isempty(C)
     X = X - repmat(mu, [T*sum(mask==1), 1]);
     C = cov(X);
 end
+
+% perform PCA and compute whitening/dim-reduction matrix
 [V, D] = eig(C);
 [ev_sorted, sort_idx] = sort(diag(D), 'descend');
 V = V(:,sort_idx);
 D = diag(ev_sorted);
+% compute an estimate of the rank of the data
+tol = ev_sorted(1) * 10^-6;
+r = sum(ev_sorted > tol);
+% compute cumulative variance explained
 var_explained = cumsum(ev_sorted)/sum(ev_sorted);
 n_components =  find(var_explained>=min_var_explained, 1);
+n_components = min(n_components, r);
+% construct the whitening matrix
 M = diag(diag(D).^-0.5) * V'; % whitening filters are in the rows!!!
 M_inv = V * diag(diag(D).^0.5); 
-
+% dim-reduction
 M = M(1:n_components, :);
 M_inv = M_inv(:,1:n_components);
 

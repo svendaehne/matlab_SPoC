@@ -241,6 +241,7 @@ for ii = 1:N
 end
 
 for ii = 1:N
+    rk = rank(Cxx{ii});
     % whiten the data
     [V, D] = eig(Cxx{ii});
     [ev_sorted, sort_idx] = sort(diag(D), 'descend');
@@ -248,6 +249,7 @@ for ii = 1:N
     D = diag(ev_sorted);
     var_explained = cumsum(ev_sorted)/sum(ev_sorted);
     nc =  find(var_explained>=min_var_explained, 1);
+    nc = min(nc, rk);
     M{ii} = V * diag(diag(D).^-0.5); % whitening filters are in the columns!!!
     M{ii} = M{ii}(:, 1:nc);
     X_white{ii} = X{ii}*M{ii};
@@ -279,10 +281,10 @@ for k=1:opt.n_repeats
     
     % set optimizer options
     minFunc_opt = struct('DerivativeCheck', opt.derivative_check, 'MaxIter', opt.maxIter, ...
-        'Display', 'off', 'useComplex', 0, 'numDiff', 0, 'TolX', 1e-07);
+        'Display', 'off', 'useComplex', 0, 'numDiff', 0, 'TolFun', 1e-02, 'TolX', 1e-05);
     
     % call the optimizer: minFunc
-    [w_tmp(:,k), fval_tmp(k), exitflag, output] = ...
+    [w_tmp(:,k), fval_tmp(k), ~, output] = ...
         minFunc(@fval_grad, w_start, minFunc_opt, X_a, maxmin_flag, ...
             n_components, opt.use_log, opt.average_over_epochs, opt.Tx);
     

@@ -145,8 +145,6 @@ W = M'*W; % project back to original (un-whitened) channel space
 
 %% some postprocessing
 
-A = Cxx * W; % compute patterns
-
 % Normalize the filters such that the extracted components have unit
 % variance. This is necessary because the scaling of the eigenvectors is
 % arbitrary. Every multiple of an eigenvector fullfils the eigenvector
@@ -156,6 +154,9 @@ A = Cxx * W; % compute patterns
 for k=1:size(W,2)
     W(:,k) = W(:,k) / sqrt(squeeze(W(:,k)'*Cxx*W(:,k)));
 end
+
+A = Cxx * W / (W'* Cxx * W); % compute patterns
+
 
 %% bootstrap the eigenvalue distribution
 n_bootstrapping_iterations = opt.n_bootstrapping_iterations;
@@ -175,11 +176,14 @@ if n_bootstrapping_iterations > 0
         [z_shuffled, z_amps] = random_phase_surrogate(z, 'z_amps', z_amps);
         % re-compute SPoC
         Cxxz_s = create_Cxxz(Cxxe, z_shuffled);
-        [W_s, D_s] = eig(Cxxz_s, Cxx);
-        % compute and store lambda and correlation values
+        Cxxz_s_white = M * Cxxz_s * M';
+        [W_s, D_s] = eig(Cxxz_s_white);
         [lambda_values_s, sorted_idx] = sort(diag(D_s), 'descend');
-        lambda_samples(k) = max(abs(lambda_values_s));
         W_s = W_s(:, sorted_idx);
+        W_s = M'*W_s; 
+        
+        % compute and store lambda and correlation values
+        lambda_samples(k) = max(abs(lambda_values_s));
         fv = get_var_features(W_s, Cxxe);
         R = corrcoef([z_shuffled', fv']);
         r_samples(k) = max(abs(R(1,2:end)));
