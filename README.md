@@ -1,4 +1,4 @@
-matlab_SPoC
+﻿matlab_SPoC
 ===========
 
 #### This package contains Matlab code for 
@@ -29,7 +29,7 @@ S. Dähne, V. V. Nikulin, D. Ramirez, P. J. Schreier, K. R. Müller, S. Haufe, "
 
 S. Haufe, F. Meinecke, K. Görgen, S. Dähne, J. Haynes, B. Blankertz, F. Biessmann, "On the interpretation of weight vectors of linear models in multivariate neuroimaging", *NeuroImage*, 87:96-110, 2014
 
-S. Haufe, S. Dähne, V. V. Nikulin, "Dimensionality reduction for the analysis of brain oscillations", *NeuroImage* 2014 (accepted for publication, reference will be updated soon)
+S. Haufe, S. Dähne, V. V. Nikulin, "Dimensionality reduction for the analysis of brain oscillations", *NeuroImage*, 101:583-597, 2014 
 
 
 
@@ -40,6 +40,9 @@ S. Haufe, S. Dähne, V. V. Nikulin, "Dimensionality reduction for the analysis o
 % We assume X contains the continous EEG/MEG data with 
 % columns of X corresponding to channels and rows to time points, 
 % i.e. size(X) = [n_samples, n_channels]. 
+% If you want to apply cSPoC, X is a cell array with X{n} being
+% the n'th dataset. The preprocessing has to be applied to each 
+% dataset individually
 
 
 % First we call the SSD function which returns the 
@@ -47,8 +50,9 @@ S. Haufe, S. Dähne, V. V. Nikulin, "Dimensionality reduction for the analysis o
 % Also, in order to compute the spatial patterns of extracted 
 % (m/c)SPoC sources,  we need the covariance matrix of the 
 % bandpassed sensorspace data.
+% See SSD code for more info on the paramters
 
-[X_ssd, W_ssd, ~, ~, C]  = ssd(X, bands);
+[W_ssd, ~, ~, C, X_ssd]  = ssd(X, bands, ...); 
 
 
 % Dimensionality reduction by choosing only the first few 
