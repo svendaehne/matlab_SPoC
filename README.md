@@ -20,12 +20,11 @@ Below you find a snippet of matlab code that shows an example of how to use SSD 
 
 #### References
 
-S. Dähne, F. Biessman, F. C. Meinecke, J. Mehnert, S. Fazli, K. R. Müller, "Integration of Multivariate Data Streams With Bandpower Signals", *IEEE Transactions on Multimedia*, 15(5):1001-1013, 2013
-
 S. Dähne, F. C. Meinecke, S. Haufe, J. Höhne, M. Tangermann, K. R. Müller, V. V. Nikulin, "SPoC: a novel framework for relating the amplitude of neuronal oscillations to behaviorally relevant parameters", *NeuroImage*, 86:111-122, 2014
 
-S. Dähne, V. V. Nikulin, D. Ramirez, P. J. Schreier, K. R. Müller, S. Haufe, "Finding brain oscillations with power dependencies in neuroimaging data", *NeuroImage*, 96:334-348, 2014 
+S. Dähne, F. Biessman, F. C. Meinecke, J. Mehnert, S. Fazli, K. R. Müller, "Integration of Multivariate Data Streams With Bandpower Signals", *IEEE Transactions on Multimedia*, 15(5):1001-1013, 2013
 
+S. Dähne, V. V. Nikulin, D. Ramirez, P. J. Schreier, K. R. Müller, S. Haufe, "Finding brain oscillations with power dependencies in neuroimaging data", *NeuroImage*, 96:334-348, 2014 
 
 S. Haufe, F. Meinecke, K. Görgen, S. Dähne, J. Haynes, B. Blankertz, F. Biessmann, "On the interpretation of weight vectors of linear models in multivariate neuroimaging", *NeuroImage*, 87:96-110, 2014
 
