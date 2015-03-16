@@ -30,7 +30,7 @@ S. Haufe, F. Meinecke, K. Görgen, S. Dähne, J. Haynes, B. Blankertz, F. Biessm
 
 S. Haufe, S. Dähne, V. V. Nikulin, "Dimensionality reduction for the analysis of brain oscillations", *NeuroImage*, 101:583-597, 2014 
 
-V. Nikulin, G. Nolte, G. Curio, "A novel method for reliable and fast extraction of neuronal EEG/MEG oscillations on the basis of spatio-spectral decomposition" , *Neuroimage*, 55(4):1528-35, 2011 . 
+V. Nikulin, G. Nolte, G. Curio, "A novel method for reliable and fast extraction of neuronal EEG/MEG oscillations on the basis of spatio-spectral decomposition" , *NeuroImage*, 55(4):1528-35, 2011 . 
 
 
 #### SSD preprocessing:
