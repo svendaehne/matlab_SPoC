@@ -72,7 +72,7 @@ function [W, A, r_values, all_r_values] = cspoc(X, maxmin_flag, varargin)
 %
 % S. Haufe, S. Dahne, V. V. Nikulin, 
 % "Dimensionality reduction for the analysis of brain oscillations"
-% NeuroImage 2014 (accepted for publication, reference will be updated soon)
+% NeuroImage 101:583-597 2014
 %
 % sven.daehne@tu-berlin.de, 2013
 % stefan.haufe@tu-berlin.de, 2013

@@ -3,9 +3,9 @@ function [W, A, lambda_values, p_values_lambda, Cxx, Cxxz, Cxxe] = spoc(X, z, va
 %
 % Optimizes spatial filters such that the power of the filtered
 % signal maximally covaries with the univariate target function z, as
-% described in Daehne et al., 2014a.
+% described in Dahne et al., 2014a.
 % 
-% [W, A, lambda_values, p_values_lambda, Cxx, Cxxz, Cxxe] = spoc(X, z, <'keyword1', value1, 'keyword1', value1, ...>)
+% [W, A, lambda_values, p_values_lambda, Cxx, Cxxz, Cxxe] = spoc(X, z, <'keyword1', value1, 'keyword2', value2, ...>)
 %
 %
 % Input:
