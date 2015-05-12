@@ -1,4 +1,4 @@
-matlab_SPoC
+﻿matlab_SPoC
 ===========
 
 #### This package contains Matlab code for 
