@@ -10,7 +10,6 @@
 
 #### Important Notes:
 
-0. Code for mSPoC to be added soon!
 1. Please make sure the util folder (and all of its subfolders) are on the Matlab path. Otherwise the optimization required for (m/c)SPoC will not work! Run the `startup_spoc.m` script to add folders to the path. 
 2. Please read the documentation of the matlab functions `ssd.m`, `spoc.m`, `mspoc.m`, `cspoc.m` and run / look at the respective examples. I have tried to explain everything that you need to know to use the functions. If there is unclarity, please let me know and I will try to improve the documentation. 
 3. It is highly recommened to use dimensionality reduction via SSD before applying (m/c)SPoC. Dimensionality reduction greatly increases the computational speed and improves the quality of the results!
