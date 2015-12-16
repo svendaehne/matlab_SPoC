@@ -3,16 +3,18 @@
 %% params
 
 
-n_channels = [30,500];
+n_channels = [30,50]; % nr of channels for X and for Y data
 K = 1; % number of "target source pairs", i.e. sources with coupled envelopes
-n_sources = [15,15];
-Nt = 0;
+% n_sources = [30,400];
+n_sources = n_channels;
+
+Nt = 10;
 
 band = [8,12]; % frequency band of interest here
-SNR = 0.7; % signal-to-noise ratio (between 0 and 1) in terms of variance explained by the target source
+SNR = 0.5; % signal-to-noise ratio (between 0 and 1) in terms of variance explained by the target source
 
-Ne_tr = 1000; % number of training epochs
-Ne_te = 1000; % number of test epochs
+Ne_tr = 500; % number of training epochs
+Ne_te = 500; % number of test epochs
 Ne = Ne_tr + Ne_te;
 Te = 100; % number of samples per epoch
 samples_per_second = 200;
@@ -27,9 +29,7 @@ SNR = min(1,SNR);
 if Nt == 0
     hrf = 1;
 else
-        hrf = exp(-(((0:Nt)-Nt/2).^2) / (2*(Nt/8)^2));
-%     hrf_length_s = (Nt-1)*Te/samples_per_second;
-%     hrf = spm_hrf(Te/samples_per_second, [0.15*hrf_length_s, 0.5*hrf_length_s, 1, 1, 6, 0, hrf_length_s])';
+    hrf = exp(-(((0:Nt)-Nt/2).^2) / (2*(Nt/8)^2));
 end
 
 hrf = hrf/sum(hrf);
@@ -37,8 +37,20 @@ hrf = hrf/sum(hrf);
 % figure
 % plot(hrf)
 
+fprintf('\n')
+fprintf('--- mSPoC example ---\n')
+fprintf('\n')
+fprintf('Number of channels in X dataset = %d\n', n_channels(1))
+fprintf('Number of channels in Y dataset = %d\n', n_channels(2))
+fprintf('Number of sources in X dataset = %d\n', n_sources(1))
+fprintf('Number of sources in Y dataset = %d\n', n_sources(2))
+fprintf('Number of shared sources = %d\n', K)
+
+
+
 %% create example toy data
 
+fprintf('Simulating data ... ')
 [X, Y, Sx, Sx_env, Sy, Ax, Ay] = create_mspoc_example_data(K, n_sources, ...
             n_channels, hrf, SNR, samples_per_second, Ne, Te, band);
 
@@ -47,34 +59,38 @@ Y = Y';
 
 Y_tr = Y(:,tr_idx);
 X_tr = X(:,:,tr_idx);
+fprintf(' done\n ')
+
+%% set mspoc options
+
+mspoc_params = [];
+mspoc_params.tau_vector = 0:(length(hrf)-1);
+mspoc_params.pca_Y_var_expl = 0.99;
+
 
 %% optimize regularizers on training data
 
-mspoc_params = struct('tau_vector',0:(length(hrf)-1)); 
+kappa_tau_list = 10.^(-1:1);
+kappa_y_list = 10.^(-2:2);
+
+% kappa_tau_list = 10.^0;
+% kappa_y_list = 10.^0;
+
 [best_kappa_tau, best_kappa_y, xval_out] = ...
     optimize_mspoc_regularizers(X_tr, Y_tr, mspoc_params ...
-        ,'kappa_tau_list', 0:0.2:1 ...
-        ,'kappa_y_list', 0:0.2:1 ...
+        ,'kappa_tau_list', kappa_tau_list ...
+        ,'kappa_y_list', kappa_y_list ...
     );
 
 %% mkSPoC on training data
 
+mspoc_params.kappa_tau = best_kappa_tau; 
+mspoc_params.kappa_y = best_kappa_y;
+mspoc_params.verbose = 2;
 
-% kappa_tau_list = 10.^(-4:0);
-% kappa_y_list = 10.^(-4:0);
+[wx, wy, wt, Ax_est, Ay_est, out] = mspoc(X_tr, Y_tr, mspoc_params);
 
-kappa_tau = 0; 10.^-2;
-kappa_y = 10.^-2;
-
-kappa_tau = 0.1; 
-kappa_y = 0.5;
-
-
-[wx, wy, wt, Ax_est, Ay_est, out] = mspoc(X_tr, Y_tr, ...
-    'tau_vector', 0:(length(hrf)-1), ...
-    'kappa_tau', kappa_tau, 'kappa_y', kappa_y);
-
-%% apply to data
+%% apply to training and test data
 
 sy_est = wy' * Y;
 px_est = zeros(1,Ne);
@@ -102,27 +118,37 @@ fprintf('corr x pattern = %g , corr y pattern = %g \n', abs(corr_pat_x), abs(cor
 
 %% plot results
 figure,
-rows = 4;
-cols = 1;
+rows = 2;
+cols = 3;
 
-subplot(rows,cols,1)
+subplot(rows,cols,1:cols)
+hold on
 plot([zscore(px_flt_est)', sign(corr_tr)*zscore(sy_est)'])
 title('estimated source time courses')
+legend({'convolved power of estimated X source', 'time-course of estimated Y source'})
+box on
+plot(Ne_tr*[1,1], ylim, 'color',0.6*[1,1,1])
+text(Ne_tr*1.01, 3, '--> test data')
+h=text(Ne_tr*0.99, 3, 'training data <--');
+set(h, 'HorizontalAlignment', 'right');
 
-if Nt > 0
-    subplot(rows,cols,2)
-    sgn = sign(hrf*wt);
-    % plot(zscore([hrf', sgn*wt, sgn*out.Atau]));
-    plot(zscore([hrf', sgn*wt]));
-    title('hrf vs wt')
-end
 
-subplot(rows,cols,3)
+subplot(rows,cols,cols+1)
 sgn = sign(Ax(:,1)'*Ax_est);
 plot(zscore([Ax(:,1), sgn*Ax_est]))
 title('Ax vs estimated Ax')
 
-subplot(rows,cols,4)
+
+if Nt > 0
+    subplot(rows,cols,cols+2)
+    sgn = sign(hrf*wt);
+%     plot(zscore([hrf', sgn*wt, sgn*out.Atau]));
+    plot(zscore([hrf', sgn*wt]));
+    title('hrf vs wt')
+end
+
+
+subplot(rows,cols,cols+3)
 sgn = sign(Ay(:,1)'*Ay_est);
 plot(zscore([Ay(:,1), sgn*Ay_est]))
 title('Ay vs estimated Ay')

@@ -50,7 +50,7 @@ opt = set_defaults(opt, ...
     );
 
 if opt.verbose > 0
-    fprintf('\n\n-> starting mSPoC analysis\n')
+    fprintf('\n--- Begin mSPoC analysis ---\n')
 end
 
 tau = opt.tau_vector;
@@ -76,11 +76,11 @@ opt.mask(1:(length(tau)-1)) = 0;
 
 
 %% whiten the X and Y signal and store the whitening matrices
-if opt.verbose > 1
+if opt.verbose > 0
     fprintf('   start whitening\n')
 end
 
-[Cxxe_w, Cxxe, Cxx, Mx] = prepare_X_signal(X, opt);
+[Cxxe_w, Cxxe, Cxx, Mx] = util_mspoc__prepare_X_signal(X, opt);
 
 % subtract temporal mean
 Y = bsxfun(@minus, Y, mean(Y,2));
@@ -88,11 +88,11 @@ if isfield(opt, 'My')
     My = opt.My;
     Y_w = My'*Y;
 else
-    [Y_w, My] = prepare_Y_signal(Y, opt);
+    [Y_w, My] = util_mspoc__prepare_Y_signal(Y, opt);
 end
     
 
-if opt.verbose > 1
+if opt.verbose > 0
     fprintf('   using %d X-components\n',size(Mx,2));
     fprintf('   using %d Y-components\n',size(My,2));
 end
@@ -324,8 +324,8 @@ for n=1:opt.n_random_initializations
     Wt_tmp(:,n) = wt;
     r_tmp(n) = r_last_iter;
     
-    if opt.verbose
-        fprintf('   Run %d done with corr = %.3f -> ', n, r_tmp(n))
+    if opt.verbose > 1
+        fprintf('   run %d done with corr = %.3f -> ', n, r_tmp(n))
         if not(converged)
             fprintf(' Not converged after %d iterations!\n', ii);
         else
@@ -404,91 +404,3 @@ end
 wy = Cyy_inv_Cyp * wt;
 
 
-
-function [Cxxe_w, Cxxe, Cxx, Mx] = prepare_X_signal(X, opt)
-% spatially whiten the X signal and store the whitening matrix
-if not(isempty(opt.Cxxe))
-    Cxxe = opt.Cxxe;
-else
-    Nx = size(X,2);
-    Ne = size(X,3);
-    Cxxe = zeros(Nx, Nx, Ne);
-    for e=1:Ne
-        Cxxe(:,:,e) = cov(X(:,:,e));
-    end
-end
-
-if not(isempty(opt.Cxx))
-    Cxx = opt.Cxx;
-else
-    Cxx = squeeze(mean(Cxxe(:,:,opt.mask),3));
-end
-
-[V,D] = eig(Cxx);
-[ev_sorted, sort_idx] = sort(diag(D), 'descend');
-
-% compute an estimate of the rank of the data
-tol = ev_sorted(1) * 10^-5;
-r = sum(ev_sorted > tol);
-n_components = r;
-
-V = V(:,sort_idx);
-Mx = V * diag(ev_sorted.^-0.5); % whitening filters are in the columns
-Mx = Mx(:,1:n_components);
-
-Cxxe_w = zeros(n_components,n_components,size(Cxxe,3));
-for e=1:size(Cxxe,3)
-    Cxxe_w(:,:,e) = Mx' * Cxxe(:,:,e) * Mx;
-end
-
-
-function [Y_w, My] = prepare_Y_signal(Y, opt)
-
-% % PCA via singular value decomposition 
-% [U,S] = svd(Y,'econ');
-% ev_sorted = diag(S).^2; % PCA eigenvalues
-% var_expl = cumsum(ev_sorted)./sum(ev_sorted);
-% min_var_expl = opt.pca_Y_var_expl; 
-% n = find(var_expl >= min_var_expl, 1, 'first');
-% 
-% % whitening matrix
-% My = U * diag(1./diag(S));
-% My = My(:,1:n);
-% % whitened signal
-% Y_w = My' * Y;
-
-
-% compute covariance matrix
-[Ny, Ne] = size(Y);
-if isempty(opt.Cyy)
-    if Ne > Ny
-        % if there are more samples than dimensions, compute the spatial
-        % covariance matrix
-        Cyy = Y*Y' / Ne;
-    else
-        % if there are more dimensions than samples, compute the temporal
-        % covariance matrix
-        Cyy = Y'*Y;
-    end
-else
-    Cyy = opt.Cyy;
-end
-
-[V,D] = eig(Cyy);
-[ev_sorted, sort_idx] = sort(diag(D), 'descend');
-V = V(:,sort_idx);
-My = V * diag(ev_sorted.^-0.5); % whitening filters are in the columns
-% PCA dim-reduction
-var_expl = cumsum(ev_sorted)./sum(ev_sorted);
-min_var_expl = opt.pca_Y_var_expl; 
-n = find(var_expl >= min_var_expl, 1, 'first');
-My = My(:,1:n);
-
-
-% whitening and possible dim-reduction
-if Ne > Ny
-    Y_w = My' * Y;
-else
-    Y_w = diag(std(V(:,1:n))) \ V(:,1:n)';
-    My = sqrt(Ne) * Y * (V(:,1:n) * diag(1./ev_sorted(1:n)'));
-end

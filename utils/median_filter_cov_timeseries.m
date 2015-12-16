@@ -1,9 +1,10 @@
 function [X_epo, idx_flt, Cxxe] = median_filter_cov_timeseries(X_epo, N, show_plot)
 % 
-% rm_idx = detect_max_eigenvalue_epochs(X_epo, threshold, show_plot)
+% [X_epo, idx_flt, Cxxe] = median_filter_cov_timeseries(X_epo, N, show_plot)
 %
-% Computes epochwise covariance matrices and their respective maximum
-% eigenvalues. The function detects epochs with eigevalues higher than
+% Computes epochwise covariance matrices and  their respective maximum
+% eigenvalues. Then the eigenvalue time-series is median-filtered
+% The function detects epochs with eigevalues higher than
 % a given or internally computed threshold. This is useful for the
 % detection of artifact epochs and their removal. 
 %
