@@ -74,6 +74,6 @@ W = W_ssd * W_spoc;
 % The spatial patterns are computed using the covariance matrix of the
 % bandpass filtered sensor space data
 
-A = W * C;
+A =  C * W;
 
 ```
