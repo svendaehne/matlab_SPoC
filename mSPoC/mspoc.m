@@ -8,12 +8,32 @@ function [Wx, Wy, Wtau, Ax, Ay, out] = mspoc(X, Y, varargin)
 % [Wx, Wy, Wtau, Ax, Ay, lambda corr_values, p_values] = mspoc(X, Y, varargin)
 %
 % Input:
+% X = 
 % size(X) is [n_samples_per_epoch_x, n_channels_x, n_epochs]
 % size(Y) is [n_channels_y, n_epochs]
 %   - n_samples_per_epoch_x should be enough to estimate power, i.e. at least
 %   a few oscillations
 %
-% For more options see the first few lines of the code....
+% Optional input arguments:
+%
+% 'n_component_sets' - Number of envelope-correlated components per dataset
+%                       to be extracted. If the number of datasets is N=2,
+%                       then we speak of a component pair. 
+%                       Default: 1, i.e. extract only the highest correlating 
+%                       component set/pair
+% 'use_log'           - Optimize correlations of log-envelopes rather then
+%                       envelopes. 
+%                       Default: false
+% 'n_random_initializations' - number of re-starts per component pair. Default: 10
+% 'max_optimization_iterations'   - maximum number of optimizer iterations. Default: 200
+% 'pca_Y_var_explained' - Dimensionality reduction via PCA for dataset Y: 
+%                         variance explained by PCA (must be value between 0 and 1), 
+%                       Default: 0.95 
+% 'verbose'     - 
+%
+% Optional input arguments are given as keyword/value pair, 
+% e.g. [...] = mspoc(X, Y, 'n_component_sets', 3, 'use_log', 0, ...).
+
 %
 % Output:
 % Wx - set of x-signal filters (columns)

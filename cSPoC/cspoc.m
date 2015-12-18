@@ -84,13 +84,16 @@ opt= set_defaults(opt, ...
     'use_log', 0, ...
     'n_repeats', 10, ... % number of re-starts per component pair
     'average_over_epochs', 0, ...
-    'verbose', 0, ...
+    'verbose', 2, ...
     'pca_var_explained', 1, ... % dim reduction: var explained by PCA on X data (between 0 and 1)
     'maxIter', 100, ... % number of optimizer iterations
     'derivative_check', 'off', ... % for internal use
     'Tx', [],... % for internal use
     'w_init', []); % for internal use
 
+if opt.verbose > 0
+    fprintf('\n--- Begin mSPoC analysis ---\n')
+end
 
 %% preprocessing
 
@@ -109,7 +112,7 @@ end
 [C, X_white, M, n_components] = prepare_data(X, opt.pca_var_explained);
 
 if opt.verbose > 0
-    fprintf('number of dimensions = ')
+    fprintf('Using the following number of dimensions = ')
     for k=1:N
         fprintf('%d ', n_components(k));
     end
