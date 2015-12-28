@@ -35,7 +35,7 @@ function [W, A, r_values, all_r_values] = cspoc(X, maxmin_flag, varargin)
 %                       Default: false
 % 'average_over_epochs' - When optimizing the correlations, average the
 %                       source envelopes within epochs. 
-%                       Default: false
+%                       Default: true
 % 'n_repeats' - number of re-starts per component pair. Default: 10
 % 'maxIter'   - maximum number of optimizer iterations. Default: 200
 % 'pca_var_explained' - Dimensionality reduction via PCA: variance explained by
@@ -83,7 +83,7 @@ opt= set_defaults(opt, ...
     'n_component_sets', 1, ... % number of component pairs to be extracted
     'use_log', 0, ...
     'n_repeats', 10, ... % number of re-starts per component pair
-    'average_over_epochs', 0, ...
+    'average_over_epochs', 1, ...
     'verbose', 2, ...
     'pca_var_explained', 1, ... % dim reduction: var explained by PCA on X data (between 0 and 1)
     'maxIter', 100, ... % number of optimizer iterations
@@ -98,14 +98,21 @@ end
 %% preprocessing
 
 N = length(X);
+% store number of samples per epoch in each dataset
 if isempty(opt.Tx);
     opt.Tx = zeros(1,N);
     for n=1:N
         opt.Tx(n) = size(X{n},1);
     end
 end
+% store number of channels in each dataset
 for n=1:N
     opt.Mx(n) = size(X{n},2);
+end
+% if the data is continous (i.e. not epoched) then turn off averaging over
+% epochs
+if size(X{1},3) == 1
+    opt.average_over_epochs = 0;
 end
 
 
