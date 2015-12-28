@@ -30,12 +30,14 @@ if Nt == 0
     hrf = 1;
 else
     hrf = exp(-(((0:Nt)-Nt/2).^2) / (2*(Nt/8)^2));
+    hrf = hrf/sum(hrf);
+    
+    figure
+    plot(hrf)
+    xlabel('time lags')
+    title('true transfer function (HRF)')
 end
 
-hrf = hrf/sum(hrf);
-
-% figure
-% plot(hrf)
 
 fprintf('\n')
 fprintf('--- mSPoC example ---\n')
@@ -136,7 +138,8 @@ set(h, 'HorizontalAlignment', 'right');
 subplot(rows,cols,cols+1)
 sgn = sign(Ax(:,1)'*Ax_est);
 plot(zscore([Ax(:,1), sgn*Ax_est]))
-title('Ax vs estimated Ax')
+title('spatial pattern of X source')
+legend({'true a_x', 'estimated a_x'})
 
 
 if Nt > 0
@@ -145,12 +148,14 @@ if Nt > 0
 %     plot(zscore([hrf', sgn*wt, sgn*out.Atau]));
     plot(zscore([hrf', sgn*wt]));
     title('hrf vs wt')
+    legend({'true hrf', 'w_{\tau}'})
 end
 
 
 subplot(rows,cols,cols+3)
 sgn = sign(Ay(:,1)'*Ay_est);
 plot(zscore([Ay(:,1), sgn*Ay_est]))
-title('Ay vs estimated Ay')
+title('spatial pattern of Y source')
+legend({'true a_y', 'estimated a_y'})
 
 
