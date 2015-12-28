@@ -14,7 +14,7 @@ function [W, A, lambda, C_s, X_ssd] = ssd(X, freq, sampling_freq, filter_order, 
 %     freq -  3 x 2 matrix with the cut-off frequencies. 
 %             First row: cut-off frequencies for band-pass of the to be extracted 
 %             oscillations.
-%             Second row: cut-off frequencies for the slowest and highest 
+%             Second row: cut-off frequencies for the lowest and highest 
 %             frequencies defining flanking intervals.
 %             Third row: cut-off frequencies for the band-stop filtering of 
 %             the central frequency process.
