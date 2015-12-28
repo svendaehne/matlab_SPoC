@@ -1,11 +1,13 @@
 ﻿matlab_SPoC
 ===========
 
-#### This package contains Matlab code for 
+#### This repository contains Matlab code for 
 * Source Power Correlation analysis (SPoC, Dähne et al. 2014a)
 * multimodal Source Power Correlation analysis (mSPoC, Dähne et al., 2013)
 * canonical Source Power Correlation analysis (cSPoC, Dähne et al., 2014b)
 * Spatio-Spectral Decomposition (SSD) for dimensionality reduction (Nikulin et al., 2011, Haufe et al. 2014b)
+
+Download the latest release from here: https://github.com/svendaehne/matlab_SPoC/releases/latest
 
 
 #### Important Notes:
