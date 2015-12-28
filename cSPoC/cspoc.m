@@ -92,7 +92,7 @@ opt= set_defaults(opt, ...
     'w_init', []); % for internal use
 
 if opt.verbose > 0
-    fprintf('\n--- Begin mSPoC analysis ---\n')
+    fprintf('\n--- Begin cSPoC analysis ---\n')
 end
 
 %% preprocessing
