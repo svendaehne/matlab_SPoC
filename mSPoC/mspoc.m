@@ -1,52 +1,72 @@
 function [Wx, Wy, Wtau, Ax, Ay, out] = mspoc(X, Y, varargin)
-% multimodal (temporal) (kernel) Source Power Co-modulation Analysis (mSPoC)
+% multimodal Source Power Co-modulation Analysis (mSPoC)
 %
-% Finds spatial filters wx and wy and a temporal filter wt such that the
-% filtered power of the projected x-signal maximally covaries with the
-% projected y-signal.
+% Finds spatial filters Wx and Wy such that the spectral power dynamics of 
+% the projected x-signal (i.e. the x-source) maximally covaries with the
+% time-course of the projected y-signal (i.e. a corresponding y-source).
+% Time-lagged coupling between the power dynamics of an x-source and the
+% time-course of a y-source are modeled by fitting a corresponding FIR 
+% filter Wtau. The number of time-lags to consider is a parameter. 
 %
-% [Wx, Wy, Wtau, Ax, Ay, lambda corr_values, p_values] = mspoc(X, Y, varargin)
+% [Wx, Wy, Wtau, Ax, Ay, out] = mspoc(X, Y, varargin)
 %
 % Input:
-% X = 
-% size(X) is [n_samples_per_epoch_x, n_channels_x, n_epochs]
-% size(Y) is [n_channels_y, n_epochs]
-%   - n_samples_per_epoch_x should be enough to estimate power, i.e. at least
-%   a few oscillations
+% X -   A multivariate oscillatory dataset (e.g. EEG) that has been
+%           band-pass filtered for a frequency band of interest and epoched into
+%           short, possibly overlapping, time windows. 
+%           X must be formated according to: 
+%               size(X) = [n_samples_per_epoch_x, n_channels_x, n_epochs]
+%           The size of the epochs (i.e. n_samples_per_epoch_x) should be enough 
+%           to estimate power, i.e. at least a few oscillations of the
+%           frequency band under study should fit in the epoch
+% Y -   A multivariate dataset (e.g. fMRI or fNIRS) that is assumed to be
+%           coupled to the bandpower dynamics of X. 
+%           Y must be formated according to: 
+%               size(Y) = [n_channels_y, n_samples_y]
+%           NOTE THAT n_samples_y MUST EQUAL n_epochs, because the
+%           modulations of a source extracted from Y is related to the
+%           modulations of the power of a source from X. 
 %
 % Optional input arguments:
 %
-% 'n_component_sets' - Number of envelope-correlated components per dataset
-%                       to be extracted. If the number of datasets is N=2,
-%                       then we speak of a component pair. 
+% 'n_component_sets' - Number of coupled component pairs to be extracted. 
 %                       Default: 1, i.e. extract only the highest correlating 
-%                       component set/pair
-% 'use_log'           - Optimize correlations of log-envelopes rather then
-%                       envelopes. 
-%                       Default: false
+%                       component pair. 
+% 'tau_vector'       - A vector of time-lags to consider for relating
+%                       X-source-bandpower to Y-source-time-course.
+%                       Time-lags are given in units of Y-samples and 
+%                       positive lags correspond to Y lagging behind X. 
+%                       Default value is 0, i.e. no time-lagging is
+%                       assumed.
+%                       Example for EEG and fNIRS/fMRI with 1 second sampling rate
+%                       of the fMRI/fNIRS is  0:20; which means consider
+%                       all lags from zero to 20 second.  
+% 'use_log'          - Optimize co-modulation of X-log-bandpower rather then
+%                       X-bandpower.
+%                       Default: false.      
 % 'n_random_initializations' - number of re-starts per component pair. Default: 10
-% 'max_optimization_iterations'   - maximum number of optimizer iterations. Default: 200
 % 'pca_Y_var_explained' - Dimensionality reduction via PCA for dataset Y: 
 %                         variance explained by PCA (must be value between 0 and 1), 
 %                       Default: 0.95 
-% 'verbose'     - 
+% 'kappa_tau'        - Regularization strength for L2 norm regularization
+%                       of Wtau. Default 10^-3
+% 'kappa_y'          - Regularization strength for L2 norm regularization
+%                       of Wy. Default 10^-3
+% 'verbose'     - show some output during the computation.
 %
 % Optional input arguments are given as keyword/value pair, 
-% e.g. [...] = mspoc(X, Y, 'n_component_sets', 3, 'use_log', 0, ...).
-
+% e.g. [...] = mspoc(X, Y, 'n_component_sets', 3, 'tau_vector', 0:20, ...).
+%
 %
 % Output:
-% Wx - set of x-signal filters (columns)
-% Wy - set of y-signal filters (columns)
-% Wtau - set time filters (columns)
-% Ax - set of x-signal patterns (in the columns)
-% Ay - set of y-signal patterns (in the columns)
-% lambda - vector of objective function values, i.e. covariance between the
-%  components in X and Y
-% corr_values - vector of correlations between the X and Y components
-% p_values - p-values corresponding to corr_values
-%
-% sven.daehne@tu-berlin.de, 10-2011
+% Wx            - set of x-signal spatial filters (columns)
+% Wy            - set of y-signal spatial filters (columns)
+% Wtau          - set FIR filters for X-source bandpower (columns)
+% Ax            - set of x-signal spatial patterns (in the columns)
+% Ay            - set of y-signal spatial patterns (in the columns)
+% out           - struct with additional output information
+
+% sven.daehne@tu-berlin.de, 2013
 
 %% params
 opt = propertylist2struct(varargin{:});
