@@ -43,7 +43,7 @@ z = S_env(:,1).^2;  % Target function for SPoC analysis: the actual
 
 % plot source signals
 figure
-plot_time_courses(zscore(S), 1,'s', 1);
+plot_time_courses(my_zscore(S), 1,'s', 1);
 title({'data in source space', 's_1 is the target source'})
 xlabel('time')
 set(gca, 'xtickLabel',[])
@@ -70,7 +70,7 @@ X = X + 0.05*X_noise;
 
 % plot sensor signals
 figure
-plot_time_courses(zscore(X), 1,'x');
+plot_time_courses(my_zscore(X), 1,'x');
 title('data in sensor space')
 xlabel('time')
 set(gca, 'xtickLabel',[])
@@ -128,8 +128,8 @@ figure
 rows = 1;
 cols = 5;
 subplot(rows,cols,1:(cols-1))
-s_true = zscore(S(:,1));
-s_est_cnt = zscore(reshape(s_est, [Te*Ne, 1]));
+s_true = my_zscore(S(:,1));
+s_est_cnt = my_zscore(reshape(s_est, [Te*Ne, 1]));
 s_est_cnt = s_est_cnt * sign(s_true'*s_est_cnt);
 
 hold on
@@ -144,7 +144,7 @@ box on
 
 % scatter true and estimated power
 subplot(rows,cols,cols)
-scatter(zscore(z_te), zscore(p_est(te_idx)))
+scatter(my_zscore(z_te), my_zscore(p_est(te_idx)))
 xlim([-3,3])
 ylim([-3,3])
 box on

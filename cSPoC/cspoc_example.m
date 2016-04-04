@@ -69,7 +69,7 @@ fprintf('creating data \n')
 figure
 for n=1:N
     subplot(N,1,n)
-    plot_time_courses(zscore(S{n}), 1,'s',1:K);
+    plot_time_courses(my_zscore(S{n}), 1,'s',1:K);
     title(sprintf('dataset #%d in source space',n))
     xlabel('time')
     set(gca, 'xtickLabel',[])
@@ -81,7 +81,7 @@ pause(0.1)
 figure
 for n=1:N
     subplot(N,1,n)
-    plot_time_courses(zscore(X{n}), 1,'x');
+    plot_time_courses(my_zscore(X{n}), 1,'x');
     title(sprintf('dataset #%d in sensor space', n))
     xlabel('time')
     set(gca, 'xtickLabel',[])
@@ -118,7 +118,7 @@ fprintf('\ndone!\n')
 
 %% project data to cSPoC components and compute envelopes 
 
-R = zscore(A{1}(:,1:K))'* zscore(A_true{1}(:,1:K));
+R = my_zscore(A{1}(:,1:K))'* my_zscore(A_true{1}(:,1:K));
 [~,idx] = max(abs(R));
 for n=1:N
     W{n}(:,1:length(idx)) = W{n}(:,idx);

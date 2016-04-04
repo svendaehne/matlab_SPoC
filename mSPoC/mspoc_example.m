@@ -125,7 +125,7 @@ cols = 3;
 
 subplot(rows,cols,1:cols)
 hold on
-plot([zscore(px_flt_est)', sign(corr_tr)*zscore(sy_est)'])
+plot([my_zscore(px_flt_est)', sign(corr_tr)*my_zscore(sy_est)'])
 title('estimated source time courses')
 legend({'convolved power of estimated X source', 'time-course of estimated Y source'})
 box on
@@ -137,7 +137,7 @@ set(h, 'HorizontalAlignment', 'right');
 
 subplot(rows,cols,cols+1)
 sgn = sign(Ax(:,1)'*Ax_est);
-plot(zscore([Ax(:,1), sgn*Ax_est]))
+plot(my_zscore([Ax(:,1), sgn*Ax_est]))
 title('spatial pattern of X source')
 legend({'true a_x', 'estimated a_x'})
 
@@ -145,8 +145,8 @@ legend({'true a_x', 'estimated a_x'})
 if Nt > 0
     subplot(rows,cols,cols+2)
     sgn = sign(hrf*wt);
-%     plot(zscore([hrf', sgn*wt, sgn*out.Atau]));
-    plot(zscore([hrf', sgn*wt]));
+%     plot(my_zscore([hrf', sgn*wt, sgn*out.Atau]));
+    plot(my_zscore([hrf', sgn*wt]));
     title('hrf vs wt')
     legend({'true hrf', 'w_{\tau}'})
 end
@@ -154,7 +154,7 @@ end
 
 subplot(rows,cols,cols+3)
 sgn = sign(Ay(:,1)'*Ay_est);
-plot(zscore([Ay(:,1), sgn*Ay_est]))
+plot(my_zscore([Ay(:,1), sgn*Ay_est]))
 title('spatial pattern of Y source')
 legend({'true a_y', 'estimated a_y'})
 
